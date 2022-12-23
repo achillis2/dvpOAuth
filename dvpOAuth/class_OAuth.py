@@ -4,7 +4,7 @@ import sys, os
 import logging
 
 from functools import wraps
-from error import AuthClientError, MissingTokenError
+from .error import AuthClientError, MissingTokenError
 
 # config = json.load(open("config"))
 
