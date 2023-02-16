@@ -8,3 +8,4 @@ dvpOAuth.egg-info
 Makefile
 tests
 docs
+*.password
