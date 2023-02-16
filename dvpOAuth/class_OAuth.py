@@ -64,10 +64,10 @@ def request_new_token():
 class DVPOAuth:
     """OAuth API for dvp app"""
 
-    def __init__(self, token=None, session=None):
+    def __init__(self, logging=None, token=None, session=None):
         self.token = token
         self.session = session
-        self.log = 0
+        self.logging = logging
 
     """ class decorator """
     def _renew_token(foo):
@@ -75,11 +75,13 @@ class DVPOAuth:
 
         def wrapper(self, *args, **kwargs):
             try:
-                logger.info(f"Existing token : {self.token}")
+                if self.logging:
+                    logger.info(f"Existing token : {self.token}")
                 return foo(self, *args, **kwargs)
             except (MissingTokenError, AuthClientError) as e:
                 self.session, self.token = request_new_token()
-                logger.info(f"New token : {self.token}")
+                if self.logging:
+                    logger.info(f"New token : {self.token}")
                 return foo(self, *args, **kwargs)
 
         return wrapper
@@ -108,15 +110,18 @@ class DVPOAuth:
             headers={"Authorization": auth},
         )
 
-        logger.info(f"Eligibiity status code : {resp_query.status_code}")
-        logger.info(f"Response content : {resp_query.content}")
+        if self.logging:
+            logger.info(f"Eligibiity status code : {resp_query.status_code}")
+            logger.info(f"Response content : {resp_query.content}")
 
         if resp_query.status_code == 401:
-            logger.exception("Eligibility 401 error.")
+            if self.logging:
+                logger.exception("Eligibility 401 error.")
             raise AuthClientError
 
         resp = json.loads(resp_query.content)
-        logger.info(f'Response : {resp["d"]["ZDSMInquiry"]}')
+        if self.logging:
+            logger.info(f'Response : {resp["d"]["ZDSMInquiry"]}')
         return resp_query.status_code, resp
 
     def check_eligibility(self, account=None):
@@ -293,15 +298,17 @@ class DVPOAuth:
         resp_query = requests.get(
             SEARCH_BASE_URL, params=search_params, headers={"Authorization": auth}
         )
-        print(resp_query.content)
 
-        logger.info(f"Search status code : {resp_query.status_code}")
+        if self.logging:
+            logger.info(f"Search status code : {resp_query.status_code}")
 
         if resp_query.status_code == 401:
-            logger.exception("Account search error.")
+            if self.logging:
+                logger.exception("Account search error.")
             raise AuthClientError
 
         resp = json.loads(resp_query.content)
-        logger.info(f"Search response : {resp}")
+        if self.logging:
+            logger.info(f"Search response : {resp}")
 
         return resp_query.status_code, resp
