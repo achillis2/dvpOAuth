@@ -88,8 +88,13 @@ class DVPOAuth:
 
     @_renew_token
     def get_token(self):
+        """return the OAuth token"""
         if not self.token:
             raise MissingTokenError
+        return self.token
+
+    def get_new_token(self):
+        _, self.token = request_new_token()
         return self.token
 
     @_renew_token
@@ -125,10 +130,12 @@ class DVPOAuth:
         return resp_query.status_code, resp
 
     def check_eligibility(self, account=None):
+        """return the account eligibility"""
         _, resp = self.call_eligibility(account)
         return True if resp["d"]["ZDSMInquiry"]["RejectionReasonDsm"] == "" else False
 
     def convert_eligibility_json_from_oauth_to_soap(self, status_code=None, resp=None):
+        """convert the oauth return the the soap format"""
         data = resp["d"]["ZDSMInquiry"]
         
         res = {
@@ -187,6 +194,7 @@ class DVPOAuth:
     def convert_account_search_json_from_oauth_to_soap(
         self, status_code=None, resp=None
     ):
+        """convert the search result json to the soap format"""
         if not resp["d"]["results"]:
             return None
 
@@ -234,7 +242,7 @@ class DVPOAuth:
 
     @_renew_token
     def account_search(self, *args, **kwargs):
-        """search account based on the account number"""
+        """search account based on the account number, first and last name, meter number and premise number"""
         if not self.token:
             raise MissingTokenError
 
