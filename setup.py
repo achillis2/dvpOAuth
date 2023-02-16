@@ -1,7 +1,7 @@
 from setuptools import setup
 
-VERSION = '0.0.1'
-DESCRIPTION = 'Dominion API'
+VERSION = '0.0.5'
+DESCRIPTION = 'Dominion API python wrapper'
 
 setup(
     name='dvpOAuth',
@@ -12,8 +12,9 @@ setup(
     author_email='dingli@gmail.com',
     license='BSD 2-clause',
     packages=['dvpOAuth'],
-    install_requires=['requests>=2.28.1',
-                      'urllib3>=1.26.12',                     
+    install_requires=['requests',
+                      'urllib3',
+                      'pytest'
                       ],
 
     classifiers=[
