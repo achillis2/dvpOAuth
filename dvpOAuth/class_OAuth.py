@@ -190,6 +190,36 @@ class DVPOAuth:
         }
         return res
 
+    def soap_U_format(self):
+        return_dict = {
+            'AccountSearchSequence': {
+                'AccountSearchSequence': []
+            },
+            'Header': {
+                'DateTimeStamp': None,
+                'MessageText': 'Validation fails: Invalid Account Number 12345',
+                'Result': 'U',
+                'ReturnCode': None
+            },
+            'MoreData': None,
+            'RowsReturned': None
+        }
+        return return_dict
+
+    def soap_W_format(self):
+        return_dict = {
+            'AccountSearchSequence': None,
+            'Header': {
+                'DateTimeStamp': datetime.now().strftime("%Y-%m-%d-%H.%M.%S.%f"),
+                'MessageText': 'No matches found for search criteria',
+                'Result': 'W',
+                'ReturnCode': 'A0016'
+            },
+            'MoreData': 'N',
+            'RowsReturned': '0000'
+        }
+        return return_dict
+
 
     def convert_account_search_json_from_oauth_to_soap(
         self, status_code=None, resp=None
@@ -197,6 +227,12 @@ class DVPOAuth:
         """convert the search result json to the soap format"""
         if not resp["d"]["results"]:
             return None
+
+        if resp['d']['results'][0]['InternetReturnCode'] == 'U':
+            return self.soap_U_format()
+
+        if resp['d']['results'][0]['InternetReturnCode'] == 'W':
+            return self.soap_W_format()
 
         resp_parent = resp["d"]["results"][0]
         data = resp_parent["ZAcctSearchNav"]["results"][0]
