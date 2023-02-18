@@ -269,7 +269,6 @@ class DVPOAuth:
         # search API
 
         dict = defaultdict(str, args[0])
-
         try:
             if dict["account"]:
                 account = dict["account"] if dict["account"] else None
@@ -277,7 +276,7 @@ class DVPOAuth:
                     SEARCH_PAR
                     + "SearchType eq 'ACC' and BillAccount eq '"
                     + account
-                    + "' and CallingApplication eq 'SEW' and ActiveBaOnly eq 'N' and QuantityRowsRequested eq 10 "
+                    + "' and CallingApplication eq 'DSM' and ActiveBaOnly eq 'N' and QuantityRowsRequested eq 10 "
                 )
             elif dict["first_name"] and dict["last_name"]:
                 filter = (
@@ -286,21 +285,14 @@ class DVPOAuth:
                     + dict["first_name"]
                     + "' and CustomerLastName eq '"
                     + dict["last_name"]
-                    + "'  and ActiveBaOnly eq 'N'"
+                    + "' and ActiveBaOnly eq 'N'"
                 )
             elif dict["meter_number"]:
                 filter = (
                     SEARCH_PAR
                     + "SearchType eq 'MET' and Meter eq '"
                     + dict["meter_number"]
-                    + "'"
-                )
-            elif dict["last_four_ssn"]:
-                filter = (
-                    SEARCH_PAR
-                    + "CallingApplication eq 'DSM' and ActiveBaOnly eq 'Y' and SearchType eq 'SSN' and SSN eq '"
-                    + dict["last_four_ssn"]
-                    + "'"
+                    + "' and ActiveBaOnly eq 'Y'"
                 )
             elif dict["premise_number"]:
                 filter = (
