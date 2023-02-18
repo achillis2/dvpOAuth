@@ -301,6 +301,16 @@ class DVPOAuth:
                     + dict["premise_number"]
                     + "' and ActiveBaOnly eq 'N'"
                 )
+            elif dict["street_name"] and dict["street_type"] and dict["city"] and dict["state"]:
+                filter = (
+                    SEARCH_PAR
+                    + "SearchType eq 'ADR' and StreetName eq '"
+                    + dict["street_name"] + "' and StreetType eq '" 
+                    + dict["street_type"] + "' and City eq'"
+                    + dict["city"] + "' and State eq'"
+                    + dict["state"] + "' and ActiveBaOnly eq 'Y'"
+                )
+
             else:
                 raise ValueError
         except:
