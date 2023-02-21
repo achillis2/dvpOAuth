@@ -7,7 +7,7 @@ import re
 from functools import wraps
 from .error import AuthClientError, MissingTokenError
 
-from .util import SEARCH_BASE_URL, SEARCH_PAR
+from .util import SEARCH_BASE_URL, SEARCH_PAR, RETRIEVE_PAR
 from collections import defaultdict
 
 from datetime import datetime
@@ -217,28 +217,30 @@ class DVPOAuth:
             return self.soap_U_format(resp['d']['results'][0])
 
         resp_parent = resp["d"]["results"][0]
-        data = resp_parent["ZAcctSearchNav"]["results"][0]
-
+        list_data = []
+        for data in resp['d']['results'][0]['ZAcctSearchNav']['results']:
+            list_data.append(
+                {
+                    "AccountFirstName": data["CustomerFirstName"],
+                    "AccountLastName": data["CustomerLastName"],
+                    "AccountMiddleName": data["CustomerMiddleName"],
+                    "AccountName": data["CustomerName"],
+                    "AccountNameSuffix": data["CustomerSuffix"],
+                    "AccountNumber": data["IdBa"],
+                    "AccountStatus": data["BillingAccountStat"],
+                    "AccountStatusDesc": data["AcctStatusDescription"],
+                    "AdditionalAddressInfo": data.get("AdditionalAddr", ''),
+                    "Address": data["AddressLine1"],
+                    "City": data["City"],
+                    "CompanyNumber": "",
+                    "State": data["State"],
+                    "ZipCode": data["Zip"],
+                }
+            )
+        
         return_dict = {
             "AccountSearchSequence": {
-                "AccountSearchSequence": [
-                    {
-                        "AccountFirstName": data["CustomerFirstName"],
-                        "AccountLastName": data["CustomerLastName"],
-                        "AccountMiddleName": data["CustomerMiddleName"],
-                        "AccountName": data["CustomerName"],
-                        "AccountNameSuffix": data["CustomerSuffix"],
-                        "AccountNumber": data["IdBa"],
-                        "AccountStatus": data["BillingAccountStat"],
-                        "AccountStatusDesc": data["AcctStatusDescription"],
-                        "AdditionalAddressInfo": data.get("AdditionalAddr", ''),
-                        "Address": data["AddressLine1"],
-                        "City": data["City"],
-                        "CompanyNumber": "",
-                        "State": data["State"],
-                        "ZipCode": data["Zip"],
-                    }
-                ]
+                "AccountSearchSequence": list_data
             },
             "Header": {
                 "DateTimeStamp": datetime.fromtimestamp(
@@ -249,9 +251,9 @@ class DVPOAuth:
                 ),  # ??? need parse the timestamp /Date(1672174552000)/
                 "MessageText": resp_parent[
                     "ReturnMessageText"
-                ],  # "Business Account details retrived successfully!"
+                ],  
                 "Result": resp_parent["InternetReturnCode"],
-                "ReturnCode": resp_parent["ErrorCode"],  # Error code?
+                "ReturnCode": resp_parent["ErrorCode"],  
             },
             "MoreData": resp_parent["MoreData"],
             "RowsReturned": str(resp_parent["RowsReturned"]),
@@ -312,6 +314,57 @@ class DVPOAuth:
                     + dict["state"] + "' and ActiveBaOnly eq 'Y'"
                 )
 
+            else:
+                raise ValueError
+        except:
+            pass
+            """handle exception here"""
+
+        search_params = {
+            "$format": "json",
+            "$filter": filter,
+            "$expand": "ZAcctSearchNav",
+        }
+
+        resp_query = requests.get(
+            SEARCH_BASE_URL, params=search_params, headers={"Authorization": auth}
+        )
+
+        if self.logging:
+            logger.info(f"Search status code : {resp_query.status_code}")
+
+        if resp_query.status_code == 401:
+            if self.logging:
+                logger.exception("Account search error.")
+            raise AuthClientError
+
+        resp = json.loads(resp_query.content)
+        if self.logging:
+            logger.info(f"Search response : {resp}")
+
+        return resp_query.status_code, resp
+
+
+    @_renew_token
+    def account_retrieve(self, *args, **kwargs):
+        """retrieve account based on the account number"""
+        if not self.token:
+            raise MissingTokenError
+
+        auth = "Bearer " + self.token
+
+        # retrieve API
+
+        dict = defaultdict(str, args[0])
+        try:
+            if dict["account"]:
+                account = dict["account"] if dict["account"] else None
+                filter = (
+                    RETRIEVE_PAR
+                    + "BillAccount eq '"
+                    + account
+                    + "'"
+                )
             else:
                 raise ValueError
         except:

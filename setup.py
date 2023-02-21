@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = '0.0.13'
+VERSION = '0.0.14'
 DESCRIPTION = 'Dominion API python wrapper'
 
 setup(
