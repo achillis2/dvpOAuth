@@ -134,6 +134,60 @@ class DVPOAuth:
         _, resp = self.call_eligibility(account)
         return True if resp["d"]["ZDSMInquiry"]["RejectionReasonDsm"] == "" else False
 
+    def convert_account_retrieve_from_oauth_to_soap(self, status_code=None, resp=None):
+        data = resp['d']['results'][0]
+        res = {
+            'AccountNumber': data['BillAccount'],
+            'AccountStatusCode': data['RETRACCTData']['BillAccountStatusCode'],
+            'AccountType': data['RETRACCTData']['AccountType'],
+            'BusinessName': None,
+            'FirstName': data['RETRACCTData']['NameCustFirst'],
+            'Header': {
+                'DateTimeStamp': datetime.now().strftime("%Y-%m-%d-%H.%M.%S.%f"),
+                'MessageText': data['ReturnMessageText'],
+                'Result': data['InternetReturnCode'],
+                'ReturnCode': data['ErrorCode']
+            },
+            'LastName': data['RETRACCTData']['NameCustLast'],
+            'LastSmartCoolCreditAmt': None,
+            'LastSmartCoolCreditDate': None,
+            'Latitude': None,
+            'Longitude': None,
+            'MailingAddressCity': data['RETRACCTData']['MailAddrCity'],
+            'MailingAddressLine1': data['RETRACCTData']['MailAddrStreetName'],
+            'MailingAddressState': data['RETRACCTData']['MailAddrState'],
+            'MailingAddressZipCode': data['RETRACCTData']['MailAddrZipcode'],
+            'MedicalFlag': None,
+            'MiddleName': data['RETRACCTData']['NameCustMiddle'],
+            'NameSuffix': None,
+            'NonStandardAddressLine1': None,
+            'NonStandardAddressLine2': None,
+            'NonStandardAddressLine3': None,
+            'OfficeCode': data['RETRACCTData']['TownCode'],
+            'OpenAccess': None,
+            'OptOut': None,
+            'OtherAccountNames': None,
+            'PremiseId': data['RETRACCTData']['PremiseId'],
+            'PremisePhoneAreaCode': data['RETRACCTData']["PhoneAreaCode"],
+            'PremisePhoneNumber': data['RETRACCTData']["Phone"],
+            'ServiceAddressLine1': None,
+            'ServiceCity': data['RETRACCTData']['SvcAddrCity'],
+            'ServicePoint': {
+                'ServicePoint': [
+                    {
+                        'AmiMeter': None,
+                        'MeterNumber': None,
+                        'RateCode': None,
+                    }
+                ]
+            },
+            'ServiceState': data['RETRACCTData']["SvcAddrSt"],
+            'ServiceZipCode': data['RETRACCTData']["SvcAddrZip"],
+            'SwitchActive': None,
+            'SwitchInstalled': None
+        }
+        return res
+
     def convert_eligibility_json_from_oauth_to_soap(self, status_code=None, resp=None):
         """convert the oauth return the the soap format"""
         data = resp["d"]["ZDSMInquiry"]
@@ -394,3 +448,5 @@ class DVPOAuth:
             logger.info(f"Search response : {resp}")
 
         return resp_query.status_code, resp
+
+
