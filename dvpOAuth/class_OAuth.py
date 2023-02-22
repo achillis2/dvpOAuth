@@ -177,7 +177,7 @@ class DVPOAuth:
                     {
                         'AmiMeter': None,
                         'MeterNumber': None,
-                        'RateCode': None,
+                        'RateCode': data['RETRACCTData']['RateCode'],
                     }
                 ]
             },
@@ -289,6 +289,8 @@ class DVPOAuth:
                     "CompanyNumber": "",
                     "State": data["State"],
                     "ZipCode": data["Zip"],
+                    "Premise": data["Premise"],
+                    "Meter": data["MeterId"]
                 }
             )
         
@@ -348,7 +350,7 @@ class DVPOAuth:
                     SEARCH_PAR
                     + "SearchType eq 'MET' and Meter eq '"
                     + dict["meter_number"]
-                    + "' and ActiveBaOnly eq 'Y'"
+                    + "' and ActiveBaOnly eq 'Y' and QuantityRowsRequested eq 50"
                 )
             elif dict["premise_number"]:
                 filter = (
