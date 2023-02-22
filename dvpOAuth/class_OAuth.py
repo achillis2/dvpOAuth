@@ -348,7 +348,7 @@ class DVPOAuth:
             elif dict["meter_number"]:
                 filter = (
                     SEARCH_PAR
-                    + "SearchType eq 'MET' and Meter eq '"
+                    + "SearchType eq 'MTR' and Meter eq '"
                     + dict["meter_number"]
                     + "' and ActiveBaOnly eq 'Y' and QuantityRowsRequested eq 50"
                 )
