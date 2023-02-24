@@ -7,5 +7,4 @@ dvpOAuth.egg-info
 .vscode
 Makefile
 tests
-docs
 *.password
