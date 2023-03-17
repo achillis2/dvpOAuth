@@ -6,6 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+import sys
+from pkg_resources import get_distribution 
+
 project = 'dvpOAuth'
 copyright = '2023, Ding Li'
 author = 'Ding Li'
@@ -13,7 +17,9 @@ author = 'Ding Li'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+sys.path.insert(0, os.path.abspath("..")) 
+
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon']
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -23,5 +29,5 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']

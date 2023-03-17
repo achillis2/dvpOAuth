@@ -94,11 +94,13 @@ class DVPOAuth:
         return self.token
 
     def get_new_token(self):
+        """return a new token"""
         _, self.token = request_new_token()
         return self.token
 
     @_renew_token
     def call_eligibility(self, account=None):
+        """check if the account is eligible"""
         if not self.token:
             raise MissingTokenError
 
@@ -135,6 +137,7 @@ class DVPOAuth:
         return True if resp["d"]["ZDSMInquiry"]["RejectionReasonDsm"] == "" else False
 
     def convert_account_retrieve_from_oauth_to_soap(self, status_code=None, resp=None):
+        """convert the response to the old soap format"""
         data = resp['d']['results'][0]
         res = {
             'AccountNumber': data['BillAccount'],
