@@ -1,6 +1,4 @@
 
-SEARCH_BASE_URL = 'https://ccapimqa.apimanagement.us21.hana.ondemand.com/v1/cc/DSMVendorsInboundServices/ZAcctSearchAndRetrieveSet'
-                   
 SEARCH_PAR = "InternetFunctionCode eq 'ACCTSRCH' and "
 
 RETRIEVE_PAR = "InternetFunctionCode eq 'RETRACCT' and "

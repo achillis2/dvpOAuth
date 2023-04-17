@@ -7,7 +7,7 @@ import re
 from functools import wraps
 from .error import AuthClientError, MissingTokenError
 
-from .util import SEARCH_BASE_URL, SEARCH_PAR, RETRIEVE_PAR
+from .util import SEARCH_PAR, RETRIEVE_PAR
 from collections import defaultdict
 
 from datetime import datetime
@@ -293,7 +293,8 @@ class DVPOAuth:
                     "State": data["State"],
                     "ZipCode": data["Zip"],
                     "Premise": data["Premise"],
-                    "Meter": data["MeterId"]
+                    "Meter": data["MeterId"],
+                    "AccountCloseDate": data["AccountCloseDate"]
                 }
             )
         
@@ -322,6 +323,7 @@ class DVPOAuth:
     @_renew_token
     def account_search(self, *args, **kwargs):
         """search account based on the account number, first and last name, meter number and premise number"""
+        SEARCH_BASE_URL = os.environ["SEARCH_BASE_URL"]
         if not self.token:
             raise MissingTokenError
 
@@ -407,6 +409,8 @@ class DVPOAuth:
     @_renew_token
     def account_retrieve(self, *args, **kwargs):
         """retrieve account based on the account number"""
+        SEARCH_BASE_URL = os.environ["SEARCH_BASE_URL"]
+
         if not self.token:
             raise MissingTokenError
 
