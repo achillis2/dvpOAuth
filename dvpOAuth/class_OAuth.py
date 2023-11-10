@@ -514,3 +514,44 @@ class DVPOAuth:
         if self.logging:
             logger.info(f"Usage response : {resp}")
         return resp_query.status_code, resp
+
+    def convert_account_usage_json_from_oauth_to_soap(
+        self, status_code=None, resp=None
+    ):
+        """convert the usage result json to the soap format"""
+        if not resp["d"]["results"]:
+            return None
+
+        resp_parent = resp["d"]["results"][0]
+        list_data = []
+        for data in resp_parent['ZUsageStatement']['results']:
+            MRDate = data['MRDate']
+            list_data.append(
+                {
+                    "AccountNumber": data["ContractAccount"],
+                    "RateCode": data["RateCode"],
+                    "MeterReadDate": datetime.fromtimestamp(eval(re.findall(r"\((.*?)\)", MRDate)[0])/ 1000).strftime("%Y-%m-%d-%H.%M.%S.%f"),  # ??? need parse the timestamp /Date(1672174552000)/
+                    "RateCodeDescription": data["RateCodeDescription"],
+                    "BillingDays": data["BillingDays"],
+                    "TotalBilledAmount": data["TotalBilledAmount"],
+                    "MeterStatus": data["MeterStatus"],
+                    "MRMethod": data["MRMethod"],
+                    "MeterRead": data["MeterRead"],
+                    "Usage": data["Usage"],
+                    "Demand": data["Demand"],
+                    "AvgDailyUse": data["AvgDailyUse"],
+                    "Meter": data["MeterID"],
+                }
+            )
+        
+        return_dict = {
+            "AccountUsageSequence": {
+                "AccountUsageSequence": list_data
+            },
+            'Header': {
+                'DateTimeStamp': datetime.now().strftime("%Y-%m-%d-%H.%M.%S.%f"),
+                'MessageText': resp_parent['ReturnMessage'],
+                'ReturnCode': resp_parent['ResultCode']
+            },
+        }
+        return return_dict
