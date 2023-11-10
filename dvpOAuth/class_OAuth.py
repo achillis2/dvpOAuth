@@ -2,12 +2,12 @@ import requests
 import json
 import os
 import logging
-import re
+import re, pdb
 
 from functools import wraps
 from .error import AuthClientError, MissingTokenError
 
-from .util import SEARCH_PAR, RETRIEVE_PAR
+from .util import SEARCH_PAR, RETRIEVE_PAR, USAGE_PAR
 from collections import defaultdict
 
 from datetime import datetime
@@ -459,3 +459,58 @@ class DVPOAuth:
         return resp_query.status_code, resp
 
 
+    @_renew_token
+    def account_usage(self, *args, **kwargs):
+        """retrieve account usage info based on the account number"""
+        USAGE_BASE_URL = os.environ["USAGE_BASE_URL"]
+
+        if not self.token:
+            raise MissingTokenError
+
+        auth = "Bearer " + self.token
+
+        # Usage API
+
+        dict = defaultdict(str, args[0])
+        try:
+            if dict["account"]:
+                account = dict["account"] if dict["account"] else None
+                start_date = dict["start_date"] if dict["start_date"] else None
+                end_date = dict["end_date"] if dict["end_date"] else None
+                filter = (
+                    USAGE_PAR
+                    + account
+                    + "' and Action eq '5' and DateRange/StartDate eq datetime'"
+                    + start_date
+                    + "' and DateRange/EndDate eq datetime'"
+                    + end_date
+                    + "'"
+                )
+            else:
+                raise ValueError
+        except:
+            pass
+            """handle exception here"""
+
+        search_params = {
+            "$format": "json",
+            "$filter": filter,
+            "$expand": "ZUsageStatement",
+        }
+
+        resp_query = requests.get(
+            USAGE_BASE_URL, params=search_params, headers={"Authorization": auth}
+        )
+
+        if self.logging:
+            logger.info(f"Usage status code : {resp_query.status_code}")
+
+        if resp_query.status_code == 401:
+            if self.logging:
+                logger.exception("Account usage error.")
+            raise AuthClientError
+
+        resp = json.loads(resp_query.content)
+        if self.logging:
+            logger.info(f"Usage response : {resp}")
+        return resp_query.status_code, resp
