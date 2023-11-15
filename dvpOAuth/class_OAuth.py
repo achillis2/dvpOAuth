@@ -491,15 +491,17 @@ class DVPOAuth:
         except:
             pass
             """handle exception here"""
-
-        search_params = {
+        usage_params = {
             "$format": "json",
             "$filter": filter,
             "$expand": "ZUsageStatement",
         }
-
+        headers={
+            'Accept-Encoding':'gzip,deflate',
+            "Authorization": auth
+        }
         resp_query = requests.get(
-            USAGE_BASE_URL, params=search_params, headers={"Authorization": auth}
+            USAGE_BASE_URL, params=usage_params, headers=headers
         )
 
         if self.logging:
